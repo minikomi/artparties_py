@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Art Parties</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+    <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+    <link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css">
+    <style>
+     * {
+       margin: 0;
+       padding: 0;
+     }
+     body.container {
+       margin: 0 auto;
+       max-width: 800px;
+     }
+     h6 {
+       line-height: 1.8em;
+       font-size: 0.8em;
+     }
+     h6 strong {
+       color: #444;
+     }
+     @media (max-width: 40rem) {
+       h2 {
+         text-align: center;
+       }
+       .row .column[class*=" column-"] {
+         margin-left: 0;
+         max-width: 100%;
+       }
+       h6 strong {
+         text-align: center;
+       }
+       body.container {
+         padding: 15px;
+       }
+       .container {
+         padding: 0px;
+       }
+     }
+    </style>
+  </head>
+
+
+  <body class="container">
+    <h1>Art Parties</h1>
+
+    {% for date, areas in partydata %}
+      {% if areas %}
+      <div class="container">
+        <h2>{{date[0]}} / {{ '%02d' %  date[1]}} / {{'%02d' % date[2]}}</h2>
+        <hr>
+        {% for area, ps in areas.items() %}
+          <div class="row">
+            <div class="column column-25">
+              <h6><strong>{{area}}</strong></h6>
+            </div>
+            <div class="column column-75">
+              {% for p in ps %}
+                <h5>
+                  {{p.venue.name}}
+                  <br><br>
+                  <img src="{{p.images[2]}}">
+                </h5>
+                <p>
+                  <br>
+                  <a href="{{p.href}}" target="blank">{{p.name}}</a>
+                  <br>
+                  <small><strong>{{p.start}}</strong> ~ <strong>{{p.end}}</strong></small>
+                  <br>
+                  <small><a href="https://maps.google.com/?q={{p.venue.address}},{{p.venue.address}} {{p.venue.name}}" target="_blank">{{p.venue.address}}</a></small>
+                </p>
+                {% if p.description %}
+                  <div class="justify">
+                    {{p.description|nl2br}}
+                  </div>
+                {% endif %}
+                <hr/>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endfor%}
+  </body>
+</html>
