@@ -10,6 +10,7 @@ import re
 import time
 import datetime
 from collections import defaultdict, OrderedDict
+from werkzeug.contrib.cache import SimpleCache
 
 url = "http://www.tokyoartbeat.com/events/xml.php?lang=en&contentType={}"
 
@@ -25,9 +26,7 @@ areas = [
     "Chiyoda"
 ]
 
-last_check = None
-
-partydata = defaultdict(lambda: defaultdict(list))
+cache = SimpleCache()
 
 def add_area(partydata, area):
     response = requests.get(url.format(area))
@@ -87,6 +86,7 @@ def create_app():
 
     app = Flask(__name__)
     _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
+
     @app.template_filter()
     @evalcontextfilter
     def nl2br(eval_ctx, value):
@@ -98,14 +98,12 @@ def create_app():
 
     @app.route("/")
     def home():
-        global last_check
-        global partydata
-        if last_check is None or time.time() - last_check > 8 * 60 * 60:
-            last_check = time.time()
+        partydata = cache.get("partydata")
+        if partydata is None:
             partydata = defaultdict(lambda: defaultdict(list))
             for area in areas:
                 partydata = add_area(partydata, area)
-
+            cache.set("partydata", dict(partydata), timeout=5*60*60)
 
         return render_template("index.tmpl", partydata=sorted(partydata.items()))
 
